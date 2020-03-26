@@ -1,0 +1,324 @@
+{% extends 'polls/base.html' %}
+
+{% block content %}
+{% if user.is_authenticated %}
+{% if isAdmin %}
+<script src='/static/js/course.js'></script>
+<script>
+    // search the student by entered name
+    function searchFunction(id) {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search"+id);
+        filter = input.value.toUpperCase();
+        table = document.getElementById("studentTable"+id);
+        tr = table.getElementsByTagName("tr");
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[1];
+            if (td) {
+            txtValue = td.textContent || td.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                tr[i].style.display = "";
+            } else {
+                tr[i].style.display = "none";
+            }
+            }
+        }
+    }
+    // Update Features
+    function updateFeatures(id, course_num) {
+        var f1 =  document.getElementById("score1_" + id.toString()).textContent;
+        var f2 =  document.getElementById("score2_" + id.toString()).textContent;
+        var f3 =  document.getElementById("score3_" + id.toString()).textContent;
+        var f4 =  document.getElementById("score4_" + id.toString()).textContent;
+        $.ajax({
+            url: "{% url 'mentors:changefeaturefunc2' %}",
+            data: {
+                'course': course_num,
+                'f1': f1,
+                'f2': f2,
+                'f3': f3,
+                'f4': f4,
+            }
+        })
+        .done(function(response) {
+            //$('#studentTable'+course_num).html(response);
+        });
+    }
+    // helper func to fix or unfix a mentor
+    function fixHelper(course_num, RIN, v){
+        $.ajax({
+            url: "{% url 'mentors:fix-mentor' %}",
+            data: {
+                'course': course_num,
+                'RIN': RIN,
+                'value': v 
+            },
+        }).done(function(response) {
+            $('#mentorTable'+course_num).html(response);
+        });
+    }
+
+    // Fix a mentor's position 
+    function fixMentor(course_num, RIN){
+        $("#mentor" + RIN).addClass("fixed");
+        fixHelper(course_num, RIN, "1");
+
+        //var str = "";
+        //str += "<button  class = 'unfix-button bt' type='button' data-toggle='modal' data-target='#confirm-unfix" + RIN +"'> <span class='glyphicon glyphicon glyphicon-remove-circle' style = 'color:white' ></span>&nbsp Un-Fix</button>";
+        //$("#buttons" + RIN).html(str);
+    }
+
+    // unFix a mentor's position 
+    function unfixMentor(course_num, RIN){
+        $("#mentor" + RIN).removeClass("fixed");
+        fixHelper(course_num, RIN, "0");
+        /*
+        var str = "";
+        str+="<button  class = 'fix-button bt' type='button' data-toggle='modal' data-target='#confirm-fix" + RIN + "'> <span class='glyphicon glyphicon-ok-circle' style = 'color:rgb(19, 185, 89);'></span>&nbsp Fix</button>";
+        str+="<button  class = 'remove-button bt' type='button' style = 'color:rgb(199, 71, 48);' data-toggle='modal' data-target='#confirm-remove" + RIN + "'><span class='glyphicon glyphicon-minus' style = 'color:rgb(199, 71, 48);'></span>&nbsp Remove</button>";
+        $("#buttons" + RIN).html(str);
+        */
+    }
+
+    // add a mentor to the given course
+    function addMentor(course_num, RIN){
+        console.log("form submitted!");  // sanity check
+        $.ajax({
+            url: "{% url 'mentors:add-mentor' %}",
+            data: {
+                'RIN': RIN,
+                'course': course_num // True & False
+            },
+        })
+        .done(function(response) {
+            $('#student'+RIN).remove();
+            $('#mentor'+RIN).remove();
+
+            $('#mentorTable'+course_num).html(response);
+        });
+    }
+
+
+    function removeMentor(RIN, obj){
+        console.log("form submitted!");  // sanity check
+        $.ajax({
+            url: "{% url 'mentors:remove-mentor' %}",
+            data: {
+                'RIN': RIN,
+            }
+        })
+        .done(function(response) {
+            $('#mentor'+RIN).remove();
+
+        });       
+    }
+
+
+    function viewStudentInfo(RIN, course_num){
+        $.ajax({
+            url: "{% url 'mentors:check-student-info' %}",
+            data: {
+                'RIN': RIN,
+                'course_num': course_num,
+            }
+        })
+        .done(function(response) {
+            $("#student-info-box"+course_num).html(response);
+        });
+    }
+
+
+    function viewStudentInfo2(RIN, course_num){
+        $.ajax({
+            url: "{% url 'mentors:check-student-info' %}",
+            data: {
+                'RIN': RIN,
+                'course_num': course_num,
+
+            }
+        })
+        .done(function(response) {
+            $("#student-info-box2"+course_num).html(response);
+        });
+    }
+
+
+    function viewAllStudents(course, id){
+        $.ajax({
+            url: "{% url 'mentors:view-all-students' %}",
+            data: {
+                'course': course,
+            }
+        })
+        .done(function(response) {
+            $("#students-table"+id).html(response);
+        });
+    }
+</script>
+
+<!-HTML============================================================================================================================================>
+<div class="container col-md-12" id = "match-page">
+    <p class = "textline">Welcome, this is the administrator's page:</p>
+    <p class = "textline"><b style = "background-color: green; color: white;">COLOR</b> means that this student is currently fixed and can not be changed in a rematch. </p>
+
+    <p class = "textline">You can view the status of all applicants for all courses can fix/unfix/add/remove them in each course. </p>
+
+    <form method="POST" action="{% url 'mentors:matchfunc' %}" id="matchfunc">
+        {% csrf_token %}
+        <p class = "textline">After you changed the weights of features, the mentors will not be rematched until you click 'Rematch'. &nbsp
+            <input type="submit" value="Rematch" name="submit" id="submit" class = "btn btn-primary" />
+        </p>
+    </form>
+    {% for i in result.courses|dictsort:"number"%}
+    <div class="panel panel-default ">
+        <div class="panel-heading">
+                <b> {{i.course}} </b> &nbsp  Capacity: {{i.course.mentor_cap}}&nbsp
+                <button type='button' class="btn btn-info" data-toggle="collapse" data-target="#sliders{{forloop.counter}}">
+                Features   
+                <span class="caret"></span>
+                </button>
+                &nbsp
+                <button type='button' class="btn btn-secondary" style = "background-color:lightpink;" data-toggle="collapse" data-target="#students{{i.course.number}}"
+                onclick="viewAllStudents('{{i.course.number}}', '{{i.course.number}}')">
+                Show Students   
+                <span class="caret"></span>
+            </button>
+        </div>
+                
+        <div class="panel-body">
+            <div id="sliders{{forloop.counter}}" class="collapse col-md-12"  >
+                <div class = "vspace"></div>
+                    Toggle the sliders to change weights of each feature: &nbsp
+                    <ul>
+                        <li class="slider_item">
+                            <strong>Cumlative GPA </strong> : <b id="score1_{{forloop.counter}}">{{i.course.feature_cumlative_GPA}}</b>
+                            <div class="slide" style = "width: 65%; color:rgb(117, 126, 250);" id="1_{{forloop.counter}}" ></div>
+                        </li>
+                        <li class="slider_item">
+                            <strong> Grade on this course before </strong> :  <b id="score2_{{forloop.counter}}">{{i.course.feature_course_GPA}}</b>
+                            <div class="slide" style = "width: 65%; color:rgb(117, 126, 250);" id="2_{{forloop.counter}}" </div>
+                        </li>
+                        <li class="slider_item">
+                            <strong> Have taken the course </strong> : <b id="score3_{{forloop.counter}}">{{i.course.feature_has_taken}}</b>
+                            <div class="slide" style = "width: 65%; color:rgb(117, 126, 250);" id="3_{{forloop.counter}}"</div>
+                        </li>
+                        <li class="slider_item">
+                            <strong> Have Mentor Experience </strong> : <b id="score4_{{forloop.counter}}">{{i.course.feature_mentor_exp}}</b>
+                            <div class="slide" style = "width: 65%; color:rgb(117, 126, 250);" id="4_{{forloop.counter}}" </div>
+                        </li>
+                    </ul>  
+                        
+                <button class="btn btn-primary inputline" onclick="updateFeatures('{{forloop.counter}}', '{{i.course.number}}')">Save Changes</button>
+                <div class = "vspace"></div>
+
+            </div>
+            <div id=  "students{{i.course.number}}" class="collapse" >
+                <div class = "vspace"></div>
+                
+                <div class = "col-md-8">
+                        Below are all other students who selected this course in their prefences. &nbsp
+                        <input type="text" id="search{{i.course.number}}" onkeyup="searchFunction('{{i.course.number}}')" placeholder=" search" >
+                    </div>
+                    <div class = "vspace"></div>
+
+                <div id="students-table{{i.course.number}}" class="col-md-8"></div>
+                <div id = "student-info-box2{{i.course.number}}" class = "col-md-4"> <div style = "color: grey; height: 20px; line-height: 20px; display: inline-block; width: 50%;">Student Profile</div></div>
+                <div class = "vspace"></div>
+
+            </div>
+
+            <div class = "scrollbox col-md-8">
+                <div> Below are all the mentors that currently assigned: </div>
+                <div class = "vspacewithline"></div>
+
+
+                <table class = "mytable" id = "mentorTable{{i.course.number}}" style="width:100%;">
+                    <tr >
+                        <th></th>
+                        <th> Operations</th>
+                        <th>Mentor Name</th>
+                        <th>GPA</th>
+                        <th>Grade</th>
+                        <th>Mentored Before</th>
+                        <th>Recommendation</th>
+                        {% for slot in i.time_slots %}
+                        <th> {{ slot }} </th>
+                        {% endfor %}
+                    </tr>
+
+                    {% for mentor in i.mentors|dictsortreversed:"rank" %}
+                    <tr {% if mentor.name.fixed %} class  = "fixed" {% endif %} id = "mentor{{mentor.name.RIN}}">
+                        <td style = "font-weight: normal; color:grey">{{forloop.counter}}</td>
+                        <td style = "font-weight: normal;">
+                            
+                            <div id = "buttons{{mentor.name.RIN}}" style = "width: 160px;">
+                                {% if mentor.name.fixed %}
+                                <button  class = 'unfix-button bt' type='button' onclick = "unfixMentor('{{i.course.number}}', '{{mentor.name.RIN}}')">
+                                    <span class='glyphicon glyphicon glyphicon-remove-circle' style = 'color:white' ></span>&nbsp Un-Fix
+                                </button>
+                                {% else %}
+                                <button  class = "fix-button bt" type='button' data-toggle='modal' onclick = "fixMentor('{{i.course.number}}', '{{mentor.name.RIN}}')">
+                                    <span class="glyphicon glyphicon-ok-circle" style = "color:rgb(19, 185, 89);"></span>&nbsp Fix
+                                </button>
+                                <button  class = "remove-button bt" type='button' style = "color:rgb(199, 71, 48);" onclick = "removeMentor('{{mentor.name.RIN}}', this)">
+                                    <span class="glyphicon glyphicon-minus" style = "color:rgb(199, 71, 48);"></span>&nbsp Remove
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td style = "font-weight: normal;"> 
+                            <button  class = 'info-button bt text-left' style = "width: 250px;" type='button' onclick = "viewStudentInfo('{{mentor.name.RIN}}', '{{i.course.number}}')" data-toggle="collapse" data-target="#student-info-box{{course.number}}">
+                                <span class='glyphicon glyphicon glyphicon-info-sign' style = 'color:rgb(117, 126, 250)' ></span> &nbsp{{mentor.name}}
+                            </button>
+                        </td>
+                        <td style = "font-weight: normal;">{{mentor.GPA}}</td>
+                        <td style = "font-weight: normal;">{{mentor.grade}}</td>
+                        <td style = "font-weight: normal;">{{mentor.exp}}</td>
+                        <td style = "font-weight: normal;">
+                            <div style="width: 130px">
+                                {% if mentor.recommended %} 
+                                Recommended
+                                {% elif mentor.unrecommended %} 
+                                Not Recommended
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        {% for slot in mentor.aval %}
+                        {% if slot %}
+                        <td style = "background-color: rgb(231, 170, 0);">   </td>
+                        {% else %}
+                        <td style = "background-color: rgb(255, 255, 255);">  </td>
+                        {% endif %}
+                        {% endfor %}
+                    </tr>
+                    
+                    <div class="modal fade" id="confirm-remove{{mentor.name.RIN}}_{{i.course.number}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    Confirm Operation:
+                                </div>
+                                <div class="modal-body">
+                                    <p>Do you want to <b style = "color: red;">remove</b> <b>{{mentor.name}}</b> from the mentor list of <b>{{i.course}}</b>? </p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button class = 'btn btn-primary' type='button' onclick = "removeMentor('{{mentor.name.RIN}}', this)" data-dismiss='modal'> Yes </button>
+                                    <button type='button' class="btn btn-default" data-dismiss='modal'>Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </table>
+            </div>
+            <div id = "student-info-box{{i.course.number}}" class = "col-md-4"> <div style = "color: grey; height: 20px; line-height: 20px; display: inline-block; width: 50%;">Student Profile</div></div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}

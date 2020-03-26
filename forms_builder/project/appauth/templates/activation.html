@@ -1,0 +1,25 @@
+{% extends 'polls/base.html' %}
+
+{% block content %}
+<br />
+
+<p>Your account was successfully activated.</p>
+{% if quick %}
+		<p><a href="{% url 'appauth:quickLogin' key=loginkey question_id=qid %}">Click here</a> to return to the poll.</p>
+		<script> var link = "{% url 'appauth:quickLogin' key=loginkey question_id=qid %}"; </script>
+{% else %}
+	<p>Wait <span id="countdown"></span> seconds or <a href="/polls/main">click here</a> to return to homepage.</p>
+	<script> var link = "/polls/main"; </script>
+{% endif %}
+<script>
+	var count = 5;
+	setInterval(function(){
+		count = count - 1;
+		if(count <= 0){
+			window.location = link;
+		}else{
+			$('#countdown').html(count);
+		}
+	}, 1000);
+</script>
+{% endblock %}

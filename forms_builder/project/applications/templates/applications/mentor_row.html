@@ -1,0 +1,90 @@
+    <tr {% if mentor.name.fixed %} class  = "fixed" {% endif %} id = "mentor{{mentor.name.RIN}}">
+        <td style = "font-weight: normal; color:rgb(226, 149, 149)">New</td>
+        <td style = "font-weight: normal;">
+            <button  class = 'info-button bt' type='button' onclick = "viewStudentInfo('{{mentor.name.RIN}}', '{{course.number}}')" data-toggle="collapse" data-target="#student-info-box{{course.number}}">
+                <span class='glyphicon glyphicon glyphicon-info-sign' style = 'color:rgb(117, 126, 250)' ></span> &nbsp Info
+            </button>
+            <div id = "buttons{{mentor.name.RIN}}">
+                {% if mentor.name.fixed %}
+
+                <button  class = 'unfix-button bt' type='button' data-toggle='modal' data-target="#confirm-unfix{{mentor.name.RIN}}_{{course.number}}">
+                    <span class='glyphicon glyphicon glyphicon-remove-circle' style = 'color:white' ></span>&nbsp Un-Fix
+                </button>
+                {% else %}
+                <button  class = "fix-button bt" type='button' data-toggle='modal' data-target='#gg'>
+                    <span class="glyphicon glyphicon-ok-circle" style = "color:rgb(19, 185, 89);"></span>&nbsp Fix
+                </button>
+                <button  class = "remove-button bt" type='button' style = "color:rgb(199, 71, 48);" data-toggle='modal' data-target='#confirm-remove{{mentor.name.RIN}}_{{course.number}}'>
+                    <span class="glyphicon glyphicon-minus" style = "color:rgb(199, 71, 48);"></span>&nbsp Remove
+                </button>
+                {% endif %}
+            </div>
+        </td>
+        <td style = "font-weight: normal;">{{mentor.name}}</td>
+        <td style = "font-weight: normal;">{{mentor.GPA}}</td>
+        <td style = "font-weight: normal;">{{mentor.grade}}</td>
+        <td style = "font-weight: normal;">{{mentor.exp}}</td>
+        <td style = "font-weight: normal;">{{mentor.recommendation}}</td>
+
+        {% for slot in mentor.aval %}
+        {% if slot %}
+        <td style = "background-color: rgb(231, 170, 0);">   </td>
+        {% else %}
+        <td style = "background-color: rgb(255, 255, 255);">  </td>
+        {% endif %}
+        {% endfor %}
+        
+    </tr>
+    
+    <div class="modal fade" id="confirm-unfix{{mentor.name.RIN}}_{{course.number}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" >
+            <div class="modal-dialog">
+                <div class="modal-content" style = "width: 660px;">
+                    <div class="modal-header">
+                        Confirm Operation
+                    </div>
+                    <div class="modal-body" >
+                        <p>Do you want to <b style = "color: red;">un-fix</b> <b>{{mentor.name}}</b>'s mentor position of <b>{{course}}</b>? </p>
+                        
+                        <p>He/she may not remain in the same position after a rematch.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class = 'btn btn-primary' type='button'  onclick = "unfix(this, '{{mentor.name.RIN}}')" data-dismiss='modal'> Yes </button>
+                        <button type='button' class="btn btn-default" data-dismiss='modal'>Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="" id="gg" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        Confirm Operation:
+                    </div>
+                    <div class="modal-body">
+                        <p>Do you want to <b style = "color: red;">fix</b> <b>{{mentor.name}}</b>'s mentor position of <b>{{course}}</b>? </p>
+                        
+                        <p>He/she will remain in the same position after a rematch.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class = 'btn btn-primary' type='button' onclick = "fix(this, '{{mentor.name.RIN}}')" data-dismiss='modal'> Yes </button>
+                        <button type='button' class="btn btn-default" data-dismiss='modal'>Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="confirm-remove{{mentor.name.RIN}}_{{course.number}}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        Confirm Operation:
+                    </div>
+                    <div class="modal-body">
+                        <p>Do you want to <b style = "color: red;">remove</b> <b>{{mentor.name}}</b> from the mentor list of <b>{{course}}</b>? </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class = 'btn btn-primary' type='button' onclick = "removeMentor('{{mentor.name.RIN}}', this)" data-dismiss='modal'> Yes </button>
+                        <button type='button' class="btn btn-default" data-dismiss='modal'>Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>

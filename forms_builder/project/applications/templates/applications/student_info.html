@@ -1,0 +1,36 @@
+
+<lengend class = "textline" style = "border: 1px solid gray; padding: 10px;">
+    <b class = "w3-large">Student Infomation:</b>
+    <p class = "col-md-12" >
+        <p style = "font-size: 14px;"><b>name:&nbsp </b>{{student}}</p>
+
+        <p style = "font-size: 14px;"><b>RIN:&nbsp </b>{{student.RIN}}</p>
+        <p style = "font-size: 14px;"><b>GPA: &nbsp</b>{{student.GPA}}</p>
+        <p style = "font-size: 14px;"><b>Email: &nbsp</b>{{student.email}}</p>
+        <p style = "font-size: 14px;"><b>Phone: &nbsp</b>{{student.phone}}</p>
+        <p style = "font-size: 14px;"><b>Recommender: &nbsp</b> {{student.recommender}}</p>
+    
+        <p style = "font-size: 14px;"><b>Compensation:&nbsp</b>
+            {% if student.compensation == 'n' %}
+            No Preference
+            {% elif student.compensation == 'c' %}
+            Credit
+            {% elif student.compensation == 'p' %}
+            Pay
+            {% endif %}
+        </p>
+    <p style = "font-size: 14px;"><b>Status:&nbsp </b>  
+        {% if student.studnet_status == 'i' %}
+        International
+        {% else %}
+        Domestic
+        {% endif %}</p>
+    </p>
+    <p style = "font-size: 14px;"><b>Employed: &nbsp</b>{{student.employed_paid_before}}</p>
+    <p style = "font-size: 14px;"><b>Mentored Non cs: &nbsp</b>&nbsp{{student.mentored_non_cs_bf}}</p>
+    <p style = "font-size: 14px;"><b>Qaulified courses:&nbsp </b>&nbsp{{student.qualified_courses}}</p>
+    <p style = "font-size: 14px;"><b>Time Slots: &nbsp</b> &nbsp{{student.time_slots}}</p>
+    <p style = "font-size: 14px;"><b>Other Times:&nbsp</b> {{student.other_times}}</p>
+    <p style = "font-size: 14px;"><b>Relevant Info:&nbsp</b> {{student.relevant_info}}</p>
+    <p style = "font-size: 14px;"><b>Course Pref:&nbsp</b> {{student.course_pref}}</p>
+</lengend>

@@ -1,0 +1,65 @@
+
+<div class = "vspacewithline"></div>
+<div class = "scrollbox">
+    
+    <table class = "mytable studentTable" id = "studentTable{{course.number}}" style="width:100%">
+        <tr>
+            <th>Operations </th>
+            <th>Student Name</th>
+            <th>GPA</th>
+            <th>Grade</th>
+            <th>Mentored</th>
+            <th>Assigned Course</th>
+            <th width = 1000>Recommendation</th>
+            {% for slot in time_slots %}
+                <th>{{ slot }}</th>
+            {% endfor %}
+        </tr>
+        
+        {% for s in data.students|dictsortreversed:"rank" %}
+        <tr id = 'student{{s.name.RIN}}' {% if s.name.fixed %} class = 'fixed' {% endif %}>
+            <td style = "font-weight: normal; width: 100%;" >
+                {% if not s.name.fixed %}
+                <button  class = "bt" type='button' onclick="addMentor('{{course.number}}', '{{s.name.RIN}}')">
+                    <span class="glyphicon  glyphicon-plus" style = "color:rgb(19, 226, 106);"></span>&nbsp Add
+                </button>
+                {% else %}
+                <div  class = "bt" >
+                    <span class="glyphicon  glyphicon-asterisk" style = "color:rgb(241, 241, 241);"></span>&nbsp Fixed
+                </div>
+                {% endif %}
+            </td>
+            <td style="display:inline-block; font-weight: normal; width: 250px">
+                <button  class = 'info-button bt' type='button' onclick = "viewStudentInfo2('{{s.name.RIN}}', '{{course.number}}')" data-toggle="collapse" data-target="#student-info-box{{course.number}}">
+                     <span class='glyphicon glyphicon glyphicon-info-sign' style = 'color:rgb(117, 126, 250)' ></span>&nbsp  {{s.name}} 
+                </button>
+            </td>
+            <td style = "font-weight: normal;">{{s.GPA}}</td>
+            <td style = "font-weight: normal;">{{s.grade}}</td>
+            <td style = "font-weight: normal;">{{s.exp}}</td>
+            <td style = "font-weight: normal;">{{s.assigned_course}}</td>
+            <td style = "font-weight: normal;">
+                <div style="width: 130px">
+                    {% if s.recommended %} 
+                        Recommended
+                        {% elif s.unrecommended %} 
+                        Not Recommended
+                        {% endif %}</div>
+                    
+                </td>
+
+            {% for slot in s.aval %}
+                {% if slot %}
+                <td style = "background-color: rgb(231, 170, 0);">   </td>
+                {% else %}
+                <td style = "background-color: rgb(255, 255, 255);">  </td>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        
+        {% endfor %}
+        </table>
+        
+    </div>
+    <div class = "vspace"></div>
+    <div class = "vspacewithline"></div>

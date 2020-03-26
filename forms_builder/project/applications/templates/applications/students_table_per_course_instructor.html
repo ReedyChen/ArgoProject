@@ -1,0 +1,74 @@
+{% for i in result.courses|dictsort:"number"%}
+
+<tr>
+    <th></th>
+    <th>Recommendation</th>
+    <th>Student Name</th>
+    <th>GPA</th>
+    <th>Grade</th>
+    <th>Mentored Before</th>
+    {% for slot in i.time_slots %}
+    <th> {{ slot }} </th>
+    {% endfor %}
+</tr>
+
+{% for student in i.mentors|dictsortreversed:"rank" %}
+    <tr {% if student.name.fixed %} style = "background-color: rgb(23, 82, 160); color:white;"  
+        {% else %} style = "background-color: skyblue;"
+        {% endif %} id = "student{{student.name.RIN}}">
+        <td style = "font-weight: normal; color:grey">{{forloop.counter}}</td>
+            
+        <td style = "font-weight: normal; color:black" >
+            <select onchange="recommendStudent('{{student.name.RIN}}', '{{i.course.number}}', this.value)" >
+                <option  value="">Neutral</option>
+                <option {% if student.recommended %} selected {% endif %} value="Recommend" >Recommend</option>
+                <option {% if student.unrecommended %} selected {% endif %} value="NotRecommend">Not Recommend </option>
+            </select>
+        </td>
+        <td style = "font-weight: normal;"> 
+            <button  class = 'info-button bt text-left' style = "width: 250px;" type='button' onclick = "viewStudentInfo('{{student.name.RIN}}', '{{i.course.number}}')" data-toggle="collapse" data-target="#student-info-box{{course.number}}">
+                <span class='glyphicon glyphicon glyphicon-info-sign' style = 'color:rgb(117, 126, 250)' ></span> &nbsp{{student.name}}
+            </button>
+        </td>
+        <td style = "font-weight: normal;">{{student.GPA}}</td>
+        <td style = "font-weight: normal;">{{student.grade}}</td>
+        <td style = "font-weight: normal;">{{student.exp}}</td>
+        
+        {% for slot in student.aval %}
+        {% if slot %}
+        <td style = "background-color: rgb(231, 170, 0);">   </td>
+        {% else %}
+        <td style = "background-color: rgb(255, 255, 255);">  </td>
+        {% endif %}
+        {% endfor %}
+    </tr>                           
+{% endfor %}
+{% for student in i.all_students|dictsortreversed:"rank" %}
+    <tr id = "student{{student.name.RIN}}">
+        <td style = "font-weight: normal; color:grey">{{forloop.counter}}</td>
+        <td style = "font-weight: normal; color:black">
+            <select onchange="recommendStudent('{{student.name.RIN}}', '{{i.course.number}}', this.value)" >
+                    <option value="">Neutral</option>
+                    <option {% if student.recommended %} selected {% endif %} value="Recommend" >Recommend</option>
+                    <option {% if student.unrecommended %} selected {% endif %} value="NotRecommend">Not Recommend </option>
+            </select>
+        </td>
+        <td style = "font-weight: normal;"> 
+            <button  class = 'info-button bt text-left' style = "width: 250px;" type='button' onclick = "viewStudentInfo('{{student.name.RIN}}', '{{i.course.number}}')" data-toggle="collapse" data-target="#student-info-box{{course.number}}">
+                <span class='glyphicon glyphicon glyphicon-info-sign' style = 'color:rgb(117, 126, 250)' ></span> &nbsp{{student.name}}
+            </button>
+        </td>
+        <td style = "font-weight: normal;">{{student.GPA}}</td>
+        <td style = "font-weight: normal;">{{student.grade}}</td>
+        <td style = "font-weight: normal;">{{student.exp}}</td>
+        
+        {% for slot in student.aval %}
+        {% if slot %}
+        <td style = "background-color: rgb(231, 170, 0);">   </td>
+        {% else %}
+        <td style = "background-color: rgb(255, 255, 255);">  </td>
+        {% endif %}
+        {% endfor %}
+    </tr>
+{% endfor %}
+{% endfor %}

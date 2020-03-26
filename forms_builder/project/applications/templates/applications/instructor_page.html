@@ -1,0 +1,273 @@
+{% extends 'polls/base.html' %}
+
+{% block content %}
+{% if user.is_authenticated %}
+{% if isInstructor %}
+<script src='/static/js/course.js'></script>
+<script>
+    // Update Features
+    function updateFeatures(id, course_num) {
+        var f1 =  document.getElementById("score1_" + id.toString()).textContent;
+        var f2 =  document.getElementById("score2_" + id.toString()).textContent;
+        var f3 =  document.getElementById("score3_" + id.toString()).textContent;
+        var f4 =  document.getElementById("score4_" + id.toString()).textContent;
+        $.ajax({
+            url: "{% url 'mentors:changefeaturefunc2' %}",
+            data: {
+                'course': course_num,
+                'f1': f1,
+                'f2': f2,
+                'f3': f3,
+                'f4': f4,
+            }
+        })
+        .done(function(response) {
+            $('#studentTable'+course_num).html(response);
+        });
+    }
+
+    // search the student by entered name
+    function searchFunction(id) {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("search"+id);
+        filter = input.value.toUpperCase();
+        table = document.getElementById("studentTable"+id);
+        tr = table.getElementsByTagName("tr");
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[2];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+
+    function recommendStudent(RIN, course_num, value){
+        $.ajax({
+        url: "{% url 'mentors:recommend-student' %}",
+        data: {
+            'RIN': RIN,
+            'course': course_num,
+            'value': value
+            }
+        })
+        .done(function(response) {
+            $('#studentTable'+course_num).html(response);
+        });
+    }
+
+    function viewStudentInfo(RIN, course_num, obj){
+        $.ajax({
+            url: "{% url 'mentors:check-student-info' %}",
+            data: {
+                'RIN': RIN,
+                'course_num': course_num,
+            }
+        })
+        .done(function(response) {
+            $("#student-info-box"+course_num).html(response);
+        });
+        getExplanation(RIN, course_num, obj);
+    }
+
+    function getExplanation(RIN, course_num, obj){
+        this_obj = $(obj);
+        $.ajax({
+            url: "{% url 'mentors:get-explanation' %}",
+            data: {
+                'RIN': RIN,
+                'course_num': course_num,
+            },
+            dataType: "json",
+            success: function(resp){
+                $("#explanation"+RIN).html(resp.result);
+            }
+        })
+        
+    }
+
+    window.setInterval(function(){
+        changeSelectColor();
+    }, 600);
+
+    function changeSelectColor(){
+        $('select').each(function() {
+            var current = $(this).val();
+            if (current == 'Recommend') {
+                $(this).css('color','blue');
+                $(this).css('font-weight','bold');
+
+            } 
+            else if (current == 'NotRecommend') {
+                $(this).css('color','red');
+                $(this).css('font-weight','bold');
+
+            }
+            else {
+                $(this).css('color','gray');
+            }
+        }); 
+    }
+        
+         
+    
+    
+</script>
+
+<!-HTML============================================================================================================================================>
+<div class="container col-md-12" id = "match-page">
+    <p class = "textline">Welcome! this is the intructor's page:</p>
+    <p class = "textline">You can view the status of all applicants for your courses and recommend/not-recommend them as a mentor. </p>
+
+    <p class = "textline"><b style = "background-color: rgb(23, 82, 160); color: white;">COLOR</b> means that this student is currently matched to this course as a mentor and he/she is fixed in this position. </p>
+    <p class = "textline"><b style = "background-color:skyblue; color: white;">COLOR</b> means that this student is currently matched to this course as a mentor. </p>
+
+
+    {% for i in result.courses|dictsort:"number"%}
+    <div class="panel panel-default ">
+        <div class="panel-heading">
+                <b> {{i.course}} </b> &nbsp  Capacity: {{i.course.mentor_cap}}&nbsp
+                <button type='button' class="btn btn-info" data-toggle="collapse" data-target="#sliders{{forloop.counter}}">
+                Features   
+                <span class="caret"></span>
+                </button>                
+        </div>
+                
+        <div class="panel-body">
+
+            <div id="sliders{{forloop.counter}}" class="col-md-8"  >
+                Toggle the sliders to change weights of each feature: &nbsp
+
+
+                <ul>
+                    <li class="slider_item" style = "width: 50%; float: left;">
+                        <strong>Cumlative GPA </strong> : <b id="score1_{{forloop.counter}}">{{i.course.feature_cumlative_GPA}}</b>
+                        <div class="slide" style = "width: 50%; color:rgb(117, 126, 250);" id="1_{{forloop.counter}}" ></div>
+                    </li>
+                    <li class="slider_item" style = "width: 50%; float: left;">
+                        <strong> Grade on this course before </strong> :  <b id="score2_{{forloop.counter}}">{{i.course.feature_course_GPA}}</b>
+                        <div class="slide" style = "width: 50%; color:rgb(117, 126, 250);" id="2_{{forloop.counter}}" </div>
+                    </li>
+                    <li class="slider_item" style = "width: 50%; float: left;">
+                        <strong> Have taken the course </strong> : <b id="score3_{{forloop.counter}}">{{i.course.feature_has_taken}}</b>
+                        <div class="slide" style = "width: 50%; color:rgb(117, 126, 250);" id="3_{{forloop.counter}}"</div>
+                    </li>
+                    <li class="slider_item" style = "width: 50%; float: left;">
+                        <strong> Have Mentor Experience </strong> : <b id="score4_{{forloop.counter}}">{{i.course.feature_mentor_exp}}</b>
+                        <div class="slide" style = "width: 50%; color:rgb(117, 126, 250);" id="4_{{forloop.counter}}" </div>
+                    </li>
+                </ul>  
+                        
+            </div>
+             
+            <div class = "col-md-8">
+                <div> Below are all the students who are eligible to mentor this course: &nbsp
+                    <input type="text" id="search{{i.course.number}}" onkeyup="searchFunction('{{i.course.number}}')" placeholder=" search" >
+                </div>
+                <div class = "vspacewithline"> </div>
+                <div class = 'scrollbox'>
+                <table class = "mytable" id = "studentTable{{i.course.number}}" style="width:100%;">
+                    <tr >
+                        <th></th>
+                        <th>Recommendation</th>
+                        <th>Student Name</th>
+                        <th>GPA</th>
+                        <th>Grade</th>
+                        <th>Mentored Before</th>
+                        {% for slot in i.time_slots %}
+                        <th> {{ slot }} </th>
+                        {% endfor %}
+                    </tr>
+
+                    {% for student in i.mentors|dictsortreversed:"rank" %}
+                        <tr {% if student.name.fixed %} style = "background-color: rgb(23, 82, 160); color:white;"  
+                            {% else %} style = "background-color: skyblue;"
+                            {% endif %} id = "student{{student.name.RIN}}">
+                            <td style = "font-weight: normal; color:grey">{{forloop.counter }}</td>
+                             
+                            <td style = "font-weight: normal; color:black" >
+                                <select onchange="recommendStudent('{{student.name.RIN}}', '{{i.course.number}}', this.value)" >
+                                    <option value="">Neutral</option>
+                                    <option {% if student.recommended %} selected {% endif %} value="Recommend" >Recommend</option>
+                                    <option {% if student.unrecommended %} selected {% endif %} value="NotRecommend">Not Recommend </option>
+                                </select>
+                            </td>
+                            <td style = "font-weight: normal;"> 
+                                <button  class = 'info-button bt text-left' style = "width: 250px;" type='button' 
+                                onclick = "viewStudentInfo('{{student.name.RIN}}', '{{i.course.number}}', this)" 
+                                onmouseenter="viewStudentInfo('{{student.name.RIN}}', '{{i.course.number}}', this)"
+                                data-toggle="collapse" 
+                                data-target="#student-info-box{{course.number}}">
+                                    <span class='glyphicon glyphicon glyphicon-info-sign' style = 'color:rgb(117, 126, 250)' ></span> &nbsp{{student.name}}
+                                    <span class = 'spantext' id = 'explanation{{student.name.RIN}}'></span>
+                                </button>
+                            </td>
+                            <td style = "font-weight: normal;">{{student.GPA}}</td>
+                            <td style = "font-weight: normal;">{{student.grade}}</td>
+                            <td style = "font-weight: normal;">{{student.exp}}</td>
+                            
+                            {% for slot in student.aval %}
+                            {% if slot %}
+                            <td style = "background-color: rgb(231, 170, 0);">   </td>
+                            {% else %}
+                            <td style = "background-color: rgb(255, 255, 255);">  </td>
+                            {% endif %}
+                            {% endfor %}
+                        </tr>                           
+                    {% endfor %}
+                    
+                    {% with mentor_size=i.mentors|length %}
+
+                    {% for student in i.all_students|dictsortreversed:"rank" %}
+                        <tr id = "student{{student.name.RIN}}">
+                            <td style = "font-weight: normal; color:grey">{{ forloop.counter|add:mentor_size }} </td>
+
+                            <td style = "font-weight: normal; color:black">
+                                <select onchange="recommendStudent('{{student.name.RIN}}', '{{i.course.number}}', this.value)" >
+                                        <option value="">Neutral</option>
+                                        <option {% if student.recommended %} selected {% endif %} value="Recommend" >Recommend</option>
+                                        <option {% if student.unrecommended %} selected {% endif %} value="NotRecommend">Not Recommend </option>
+                                </select>
+                            </td>
+                            <td style = "font-weight: normal;"> 
+                                <button  class = 'info-button bt text-left' style = "width: 250px;" type='button' 
+                                onclick = "viewStudentInfo('{{student.name.RIN}}', '{{i.course.number}}', this)" 
+                                onmouseenter="viewStudentInfo('{{student.name.RIN}}', '{{i.course.number}}', this)"
+                                data-toggle="collapse" 
+                                data-target="#student-info-box{{course.number}}">
+                                    <span class='glyphicon glyphicon glyphicon-info-sign' style = 'color:rgb(117, 126, 250)' ></span> &nbsp{{student.name}}
+                                    <span class = 'spantext' id = 'explanation{{student.name.RIN}}'></span>
+                                </button>
+                            </td>
+                            <td style = "font-weight: normal;">{{student.GPA}}</td>
+                            <td style = "font-weight: normal;">{{student.grade}}</td>
+                            <td style = "font-weight: normal;">{{student.exp}}</td>
+                            
+                            {% for slot in student.aval %}
+                            {% if slot %}
+                            <td style = "background-color: rgb(231, 170, 0);">   </td>
+                            {% else %}
+                            <td style = "background-color: rgb(255, 255, 255);">  </td>
+                            {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                    {% endwith %}
+
+                </table>
+            </div>
+            </div>
+            <div id = "student-info-box{{i.course.number}}" class = "col-md-4"> <div style = "color: grey; height: 20px; line-height: 20px; display: inline-block; width: 50%;">Student Profile</div></div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endif %}
+{% endblock %}
