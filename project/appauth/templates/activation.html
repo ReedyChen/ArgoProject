@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<script>
+	var count = 5;
+	setInterval(function(){
+		count = count - 1;
+		if(count <= 0){
+			window.location = link;
+		}else{
+			$('#countdown').html(count);
+		}
+	}, 1000);
+</script>
+
+<div class="card text-center">
+	<div class="card-body">
+	<h5 class="card-title">Your account was successfully activated！</h5>
+	<p class="card-text">Wait <span id="countdown"></span> seconds or <a href="/">click here</a> to return to homepage.</p>
+	<script> var link = "/"; </script>
+	</div>
+
+</div>
+
+
+{% endblock %}

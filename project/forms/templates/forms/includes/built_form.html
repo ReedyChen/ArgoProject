@@ -1,0 +1,55 @@
+
+{% load staticfiles %}
+
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" integrity="" crossorigin="anonymous" />
+
+<script
+        src="/static/js/jquery-2.2.4.min.js"
+        integrity=""
+        crossorigin="anonymous"></script>
+    <script
+      src="/static/js/jquery-ui.min.js"
+      integrity=""
+      crossorigin="anonymous"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/static/js/bootstrap.min.js"></script>
+    <div class="container">
+        <div class="row">
+
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-6">
+
+            <div class="card">
+                <div class="card-header">Due date: {{form.expiry_date}}</div>
+                <div class = "card-body">
+
+                <h3 class="card-title">{{ form.title }} </h3>
+                <h5 class="card-text">{{ form.intro }}</h5>
+
+                    {{ form_for_form.media }}
+                    <form action="{{ form.get_absolute_url }}" method="post"  {% if form_for_form.is_multipart %}enctype="multipart/form-data"{% endif %}>
+                        {% csrf_token %}
+
+                        {% for field in form_for_form %}
+                            <div class="form-group">
+                                {{ field.errors }}
+                                {% if field.help_text %}
+                                <p class="help">{{ field.help_text|safe }}</p>
+                                {% endif %}
+
+                                {{ field.label_tag }} 
+                                {{ field }} 
+                                
+                            </div>
+                            <div style="clear:left;"></div>
+
+                        {% endfor %}
+                        <input class="btn btn-primary " type="submit" value="{{ form.button_text }}">
+                    </form>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+

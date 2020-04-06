@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load static %}
+{% block extra_head %}
+
+{% endblock %}
+
+{% block content %}
+<style>
+    p.sameline{
+        display:inline-block;
+    }
+    .panel-default > .panel-heading {
+      color: #fff;
+      background-color: #4c94cc;
+      border-color: transparent;
+        border:0px;
+    }
+    .readable{
+        background-color:rgba(0, 0, 0, 0.5);
+    }
+    body, html {
+    height: 100%;
+    line-height: 1.8;
+    }
+   
+
+    img {margin-bottom: -8px;}
+    
+</style>
+
+<div class="card text-center">
+  <div class="card-header">
+    Featured
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">Application creater</h5>
+    <p class="card-text">Create your own application.</p>
+    <a class="btn btn-primary" href="/admin/">Start</a>
+  </div>
+  <div class="card-footer text-muted">
+    2 days ago
+  </div>
+</div>
+
+
+<br></br>  
+<div class="card text-center">
+  <div class="card-header">
+    Featured
+  </div>
+  <div class="card-body">
+    <h5 class="card-title">Check applications</h5>
+    <div class="card-deck">
+      {% for form in forms %}
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title"> {{ form.title }}</h5>
+          <p class="card-text"> {{form.intro}}</p>
+          <p class="card-text"><small class="text-muted">Due date: {{form.expiry_date}}</small></p>
+          <a href="{{ form.get_absolute_url }}"> Start </a>
+        </div>
+      </div>
+      {% empty %}
+      <li class="list-group-item">No Viable forms right now</li>
+      {% endfor %}
+    </div>
+
+    
+    </div>
+   
+</div>
+ 
+    
+</body>
+  <br></br> 
+  <br></br>  
+</div>
+
+{% endblock %}
