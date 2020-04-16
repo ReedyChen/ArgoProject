@@ -21,28 +21,31 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import validate_email
 
+
 from . import opra_crypto
 
+from django.contrib.auth import login, authenticate
+from django.shortcuts import render, redirect
 
-# Register an account
-def register(request):
+
+    
+# Sign up an account
+def signup(request):
     context = RequestContext(request)
     
     registered = False
     
     # If it's a HTTP POST, we're interested in processing form data.
     if request.method == 'POST':
-        # Attempt to grab information from the raw form information.
-        # Note that we make use of both UserForm and UserProfileForm.
-        user_form = UserForm(data=request.POST)
+        userForm = UserForm(request.POST)
  
         # If the two forms are valid...
-        if user_form.is_valid():
+        if userForm.is_valid():
             if '@' in request.POST['username']:
-                user_form = UserForm()
+                userForm = UserForm()
             else:
                 # Save the user's form data to the database.
-                user = user_form.save()
+                user = userForm.save()
                 
                 # Hash the password with the set_password method
                 user.set_password(user.password)
@@ -59,9 +62,9 @@ def register(request):
             return HttpResponse("This username already exists. Please try a different one. <a href='/auth/register'>Return to registration</a>")
 
     else:
-        user_form = UserForm()
+        userForm = UserForm()
 
-    return render(request, 'register.html', {'user_form': user_form, 'registered': registered})
+    return render(request, 'register.html', {'userForm': userForm, 'registered': registered})
 
 # Confirm user from activision					  
 def confirm(request, key):

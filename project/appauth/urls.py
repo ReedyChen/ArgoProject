@@ -5,7 +5,7 @@ from . import views
 
 app_name = 'appauth'
 urlpatterns = [
-    url(r'^register/$', views.register, name='register'),
+    url(r'^signup/$', views.signup, name='signup'),
     url(r'^login/$', views.user_login, name='login'),
     url(r'^login/forgetpassword/$', views.forgetPassword, name='forgetpassword'),
     url(r'^login/forgetpasswordview/$', views.forgetPasswordView, name='forgetpasswordview'),

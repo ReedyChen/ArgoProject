@@ -31,38 +31,12 @@
           
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="{% url 'appauth:register' %}" style="color:black;"><span class="glyphicon glyphicon-user"></span> Sign Up </a>
+            <a class="nav-link" href="{% url 'appauth:signup' %}" style="color:black;"><span class="glyphicon glyphicon-user"></span> Sign Up </a>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Login
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-              <form id="login_form" method="post" action="/auth/login/">
-                {% csrf_token %}
-                <div class="modal-header">
-                  Login
-                </div>
-                <!--login model-->
-                <div class="modal-body">
-                  <fieldset class="form-group">
-                    <label for="username">Username </label>
-                    <input type="text" class="form-control" id="username" name="username" placeholder="Enter Username" value="" size="50" autofocus/>
-                  </fieldset>
-                  <fieldset class="form-group">
-                    <label for="username">Password</label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Password" value="" size="50" />
-                    <a  href="{% url 'appauth:forgetpasswordview'%}">Forgot Password?</a>
-                  </fieldset>
-                 
-                </div>
-                <div class="modal-footer">
-                  <input type="submit" class="btn btn-primary" value="Login"/>
-                  <input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel"/>
-                </div>
-                <!-- end for login model-->
-              </form>
-            </div>
+            <li class="nav-item active">
+             <a class="nav-link" href="{% url 'appauth:login' %}" style="color:black;"><span class="glyphicon glyphicon-user"></span> Login </a>
+          </li>
           </li>
           <li>
             
