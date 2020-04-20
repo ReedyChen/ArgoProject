@@ -1,10 +1,3 @@
-import datetime
-import time
-import random
-import uuid
-import json
-import numpy as np
-
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
@@ -12,6 +5,8 @@ from django.views import generic
 from django.core import mail
 
 from .models import *
+from .forms import *
+from forms.models import *
 
 from django.utils import timezone
 from django.template import RequestContext
@@ -22,90 +17,80 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import validate_email
 
 
-from . import opra_crypto
-
-from django.contrib.auth import login, authenticate
 from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm
+from django.shortcuts import render, redirect
+from django.views.generic.edit import CreateView
 
 
-    
-# Sign up an account
-def signup(request):
-    context = RequestContext(request)
-    
-    registered = False
-    
-    # If it's a HTTP POST, we're interested in processing form data.
+MASTER_KEY="this-is-argo-key-tea-b-a-a"
+
+# Python encrpytion, waiting for more implementations
+def encrypt_val(txt):
+    return str(txt)
+
+# Python decryption, waiting for more implementations
+def decrypt_val(txt):
+    return str(txt)
+
+# Create a new user account using userForm
+def signup(request):    
     if request.method == 'POST':
-        userForm = UserForm(request.POST)
- 
-        # If the two forms are valid...
-        if userForm.is_valid():
-            if '@' in request.POST['username']:
-                userForm = UserForm()
-            else:
-                # Save the user's form data to the database.
-                user = userForm.save()
-                
-                # Hash the password with the set_password method
-                user.set_password(user.password)
-                user.is_active = False
-                user.save()
-                profile = UserProfile(user=user, time_creation=timezone.now())
-                profile.save()
-                # Update our variable to tell the template registration was successful.
-                registered = True
-                
-                htmlstr =  "<p><a href='http://127.0.0.1:8000/auth/register/confirm/"+opra_crypto.encrypt(user.id)+"'>Click This Link To Activate Your Account</a></p>"
-                mail.send_mail("Confirmation","Please confirm your account registration.",'argoteamservice@gmail.com',[user.email],html_message=htmlstr)
-        else:
-            return HttpResponse("This username already exists. Please try a different one. <a href='/auth/register'>Return to registration</a>")
+        form = UserForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user.refresh_from_db()
 
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password')
+            user.set_password(user.password)
+
+            user.save()
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+
+            user.is_active = False
+            user.save()
+
+            # send the verification email
+            htmlstr =  "<p><a href='http://127.0.0.1:8000/auth/register/confirm/"+encrypt_val(user.id)+"'>Click This Link To Activate Your Account</a></p>"
+            mail.send_mail("Confirmation","Please confirm your account registration.",'argoteamservice@gmail.com',[user.email],html_message=htmlstr)
+            return render(request, 'register.html', {'registered': True, 'form': form})
     else:
-        userForm = UserForm()
-
-    return render(request, 'register.html', {'userForm': userForm, 'registered': registered})
-
+        form = UserForm()
+    return render(request, 'register.html', {'registered': False, 'form': form})
+    
+    
 # Confirm user from activision					  
 def confirm(request, key):
     context = RequestContext(request)
-    user_id = opra_crypto.decrypt(key)
+    user_id = decrypt_val(key)
     user = get_object_or_404(User, pk=user_id)
     user.is_active = True
     user.save()
     user.backend = 'django.contrib.auth.backends.ModelBackend'
-    login(request,user)
-    return render(request, 'activation.html', {'quick':False})
-
+    login(request, user)
+    return render(request, 'activation.html', {})
 
 # Login 
 def user_login(request):
-    context = RequestContext(request)
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
-        
-        # Check if the username/password combination is valid - a User object is returned if it is.
-        user = authenticate(username=username, password=password)
-        
-        if user:
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
             if user.is_active:
                 login(request, user)
-                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+                # Redirect to the success page.
+                return render(request, 'index.html', {'user': user})
             else:
-                email = user.email
-                if email:
-                    htmlstr = "Please <a href='http://127.0.0.1:8000/auth/register/confirm/"+opra_crypto.encrypt(user.id)+"'>CLICK HERE</a> to activate your account."
-                    mail.send_mail("OPRA Confirmation From Invalid Login","Please confirm your account registration.",'argoteamservice@gmail.com',[email],html_message=htmlstr)
-                return HttpResponse("Your account is not active. We have resent an activation link to your email address. Please check.")
+                return render(request, 'login.html', {'message': "This account has not been activated, please first activate first"})
+        # incorrect message has been entered
         else:
-            return HttpResponse("Invalid login details supplied.")
-	
-    else: 
-        # Display the login form.
-        return render(request,'login.html', {})
-
-
+            return render(request, 'login.html', {'message': "Login Failed, please check the information entered"})
+     
+    return render(request, 'login.html', {})
 
 @login_required
 def changePasswordView(request):
@@ -126,42 +111,85 @@ def resetPage(request, key):
     context = RequestContext(request)
     return render(request,'resetpassword.html',{'key':key})
     
-
+# the function to let the people find the forgotten password
 def forgetPassword(request):
     email = request.POST['email']
     username = request.POST['username']
-    if email == "" or username == "":
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    user = get_object_or_404(User, email=email, username=username)
-    htmlstr = "<p><a href='http://127.0.0.1:8000/auth/resetpassword/"+opra_crypto.encrypt(user.id) + "'>Click This Link To Reset Password</a></p>"
-    mail.send_mail("Find back Password","Please click the following link to reset password.",'argoteamservice@gmail.com',[email],html_message=htmlstr)
-    return HttpResponse("An email has been sent to your email account. Please click on the link in that email and reset your password.")
-    
+    # try to find the user by entered email and username
+    try:
+        user = User.objects.get(email=email, username=username)
+        htmlstr = "<p><a href='http://127.0.0.1:8000/auth/resetpassword/"+encrypt_val(user.id) + "'>Click This Link To Reset Password</a></p>"
+        mail.send_mail("Find back Password","Please click the following link to reset password.",'argoteamservice@gmail.com',[email],html_message=htmlstr)
+        return render(request,'forgetpassword.html', {'message': "An verification email has been sent to your mail box, please wait shortly to receive them"})    
+    except: # Return the warning if the user can not been found
+        return render(request,'forgetpassword.html', {'message': "The user info has not been found"})
+
+# the function to let the people reset the password, the password confirmation is done in js
 def resetPassword(request, key):
     context = RequestContext(request)
-    user_id = opra_crypto.decrypt(key)
+    user_id = decrypt_val(key)
     user = get_object_or_404(User, pk=user_id)
-    new = request.POST['newpassword']
-    con = request.POST['confirmpassword']
-    if new != "" and new == con:
-        user.set_password(new)
-        user.save()
-        return render(request,'success.html', {})
+    password1 = request.POST['newpassword']
+    return render(request,'success.html', {})
+    
+
+
+'''
+def createform(request):
+    if request.method == 'POST':
+        form = CreationForm(request.POST)
     else:
-        return render(request,'resetpassword.html',{'key':key})
+        form = CreationForm()
 
-@login_required
-def changePassword(request):
-    user = request.user
-    old = request.POST['oldpassword']
-    new = request.POST['newpassword']
-    if user.check_password(old):
-        user.set_password(new)
-        user.save()
-        return HttpResponseRedirect(reverse('polls:index'))
+    return render(request, 'createform.html', {'form': form})
+'''
+
+
+def createform(request):
+    if request.method == 'POST':
+        form = FormCreationSet(request.POST)
     else:
-        return HttpResponse("The password you entered is wrong.")
-        
-        
+        form = FormCreationSet()
+    return render(request, 'createform.html', {'form': form})
 
+class createformview(CreateView):
+    template_name = 'createform.html'
+    model = Form
+    form_class = FormCreationForm # the parent object's form
 
+    # On successful form submission
+    def get_success_url(self):
+        return reverse('-created')
+
+    # Validate forms
+    def form_valid(self, form):
+        ctx = self.get_context_data()
+        inlines = ctx['inlines']
+        if inlines.is_valid() and form.is_valid():
+            self.object = form.save() # saves Father and Children
+            if inlines.is_valid():
+                # also save the field objects of the form
+                inlines.instance = self.object
+                inlines.save()
+
+            return redirect('/')
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
+
+    # We populate the context with the forms. Here I'm sending
+    # the inline forms in `inlines`
+    def get_context_data(self, **kwargs):
+        ctx = super(createformview, self).get_context_data(**kwargs)
+        if self.request.POST:
+            ctx['form'] = FormCreationForm(self.request.POST)
+            ctx['inlines'] = FormCreationSet(self.request.POST)
+
+        else:
+            ctx['form'] = FormCreationForm()
+            ctx['inlines'] = FormCreationSet()
+        ctx['inlines_tags'] = ('label', 'field_type', 'required', 'choices', 'placeholder_text','help_text')
+
+        return ctx

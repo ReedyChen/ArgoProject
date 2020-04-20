@@ -5,13 +5,6 @@
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script>
-    function register(){
-        if($('#reg_email').val() == ''){ $('#error').html("Please enter an email."); $('#reg_email').focus(); }
-        else if($('#reg_username').val() == ''){ $('#error').html("Please enter a username."); $('#reg_username').focus(); }
-        else if($('#reg_username').val().indexOf('@') > -1){ $('#error').html("Username should not include @ character."); $('#reg_username').focus(); }
-        else if($('#reg_password').val() == ''){ $('#error').html("Please enter a password."); $('#reg_password').focus(); }
-        else{ $('#user_form').submit(); }
-    }
     function Validate() {
         var password = document.getElementById("reg_password1").value;
         var confirmPassword = document.getElementById("reg_password2").value;
@@ -36,32 +29,26 @@
         <div class="card">
           <article class="card-body">
           <h4 class="card-title mb-4 mt-1">Sign Up</h4>
-          <form class="form-signin" id="user_form" method="post" action="/auth/signup/" enctype="multipart/form-data">
+          <form method="post">
             {% csrf_token %}
-
-              <div class="form-group">
-                <label for="email">Your email</label>
-                <input type="text" class="form-control" id="reg_email" name="email" placeholder="" value="" size="50" autofocus />
-              </div> 
-
-              <div class="form-group">
-                <label for="username">Your Username</label>
-                <input type="text" class="form-control" id="reg_username" name="username" placeholder="" value="" size="50" />  
-              </div>
-            
-              <div class="form-group">
-                  <label for="password">Your Password</label> 
-                  <input type="password" class="form-control" id="reg_password" name="password" placeholder="********" value="" size="50" />
-              </div>              
-               
-              <div class="form-group">
-                  <button type="submit" class="btn btn-primary btn-block"  > Submit  </button>
-              </div> <!-- form-group// -->                                                           
+            {% for field in form %}
+            <div class="form-group">
+              {{ field.label_tag }}<br>
+                {{ field }}
+                {% if field.help_text %}
+                  <small style="color: grey">{{ field.help_text }}</small>
+                {% endif %}
+                {% for error in field.errors %}
+                  <p style="color: red">{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+            <button class="btn btn-primary btn-block" type="submit">Sign up</button>
           </form>
           </article>
           </div> <!-- card.// -->
         </aside> <!-- col.// -->
-
+        
         
     {% endif %}
 </div>
