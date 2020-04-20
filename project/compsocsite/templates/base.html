@@ -1,11 +1,13 @@
 {% load staticfiles %}
 <head>
-  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" integrity="" crossorigin="anonymous" />
+<!--JQuery -->
 
 <script src="/static/js/jquery-2.2.4.min.js" integrity="" crossorigin="anonymous"></script>
      
-    <!-- Bootstrap Core JavaScript -->
-    <script src="/static/js/bootstrap.min.js"></script>
+<!-- Bootstrap Core JavaScript -->
+<script src="/static/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" integrity="" crossorigin="anonymous" />
+
 </head>
 <html>
 
@@ -46,12 +48,8 @@
    
       </div>
     </nav>
-     
-		
-					
- 
-          {% block content %}
-      {% endblock %}
+    {% block content %}
+    {% endblock %}
     
 	</body>
 

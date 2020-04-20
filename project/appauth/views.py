@@ -17,7 +17,6 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.validators import validate_email
 
 
-from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect
@@ -132,9 +131,10 @@ def resetPassword(request, key):
     user_id = decrypt_val(key)
     user = get_object_or_404(User, pk=user_id)
     password1 = request.POST['newpassword']
+    user.set_password(password1)
+    user.save()
     return render(request,'success.html', {})
     
-
 
 '''
 def createform(request):
