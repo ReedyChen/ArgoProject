@@ -172,7 +172,7 @@ class createformview(CreateView):
                 inlines.instance = self.object
                 inlines.save()
 
-            return redirect('/')
+            return redirect('/') # redirect to the index page after successfully created
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
@@ -190,6 +190,7 @@ class createformview(CreateView):
         else:
             ctx['form'] = FormCreationForm()
             ctx['inlines'] = FormCreationSet()
+        # Tags that are used to create the header of the form
         ctx['inlines_tags'] = ('label', 'field_type', 'required', 'choices', 'placeholder_text','help_text')
 
         return ctx
