@@ -92,14 +92,16 @@ def user_login(request):
      
     return render(request, 'login.html', {})
 
+
+# Change password
 @login_required
 def changePasswordView(request):
     context = RequestContext(request)
     return render(request,'changepassword.html', {})
 
+# Logout
 @login_required
 def user_logout(request):
-    # Since we know the user is logged in, we can now just log them out.
     logout(request)
     return render(request,'index.html', {})
     
@@ -152,6 +154,7 @@ def createform(request):
         form = FormCreationSet()
     return render(request, 'createform.html', {'form': form})
 
+# Form creation views
 class createformview(CreateView):
     template_name = 'createform.html'
     model = Form
