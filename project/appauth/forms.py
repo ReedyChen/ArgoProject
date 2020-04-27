@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.forms.models import inlineformset_factory
 
+# The user form that is used to register
 class UserForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
     class Meta:
@@ -19,7 +20,8 @@ class UserForm(forms.ModelForm):
         super(UserForm, self).__init__(*args, **kwargs)
         for field in self: 
             field.field.widget.attrs['class'] =  'form-control'
-
+            
+# The model form for creating a form (confusing isnt it? )
 class FormCreationForm(forms.ModelForm):
     class Meta:
         model = Form
@@ -31,7 +33,8 @@ class FormCreationForm(forms.ModelForm):
         super(FormCreationForm, self).__init__(*args, **kwargs)
         for field in self: 
             field.field.widget.attrs['class'] =  'form-control'
-
+            
+# The sub form to create custimizbale fields within a form
 class FieldCreationForm(forms.ModelForm):
     class Meta:
         model = Field
@@ -43,4 +46,5 @@ class FieldCreationForm(forms.ModelForm):
         for field in self: 
             field.field.widget.attrs['class'] =  'form-control'
   
+# The formset helps to create inline forms
 FormCreationSet = inlineformset_factory(Form, Field, form = FieldCreationForm, extra=3)
