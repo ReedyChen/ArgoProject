@@ -1,8 +1,8 @@
 # ArgoProject
 This is the repo for SDD project
-### Introduction
+## Introduction
 
-### Installing
+## Installing
 Make sure you have already installed Python 3.7
 And then install the Django 2.1 by entering:
 ```
@@ -12,7 +12,7 @@ If you are using macOS Catalina or the os after, which has the Python pre-instal
 ```
 pip3 install Django==2.1
 ```
-### Running
+## Running
 First Django requires to migrate all the migrations:
 Open the Project dir, entering:
 ```
