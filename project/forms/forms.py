@@ -166,7 +166,7 @@ multiple_filter_field = forms.ChoiceField(label=" ", required=False,
 date_filter_field = forms.ChoiceField(label=" ", required=False,
                                       choices=DATE_FILTER_CHOICES)
 
-
+# class used add new contents to the form
 class FormForForm(forms.ModelForm):
     field_entry_model = FieldEntry
 
@@ -261,6 +261,7 @@ class FormForForm(forms.ModelForm):
                 text = field.placeholder_text
                 self.fields[field_key].widget.attrs["placeholder"] = text
 
+    # function used to store the changed form
     def save(self, **kwargs):
         """
         Get/create a FormEntry instance and assign submitted values to
