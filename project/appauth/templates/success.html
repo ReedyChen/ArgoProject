@@ -1,10 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <br />
-<p>Your password was reset successfully.</p>
-<p>Wait <span id="countdown"></span> seconds or <a href="/">click here</a> to return to homepage.</p>
-<script> var link = "/"; </script>
+<div class="card text-center">
+	<div class="card-body">
+	<h5 class="card-title">Your password was reset successfully！</h5>
+	<p class="card-text">Wait <span id="countdown"></span> seconds or <a href="/">click here</a> to return to homepage.</p>
+	<script> var link = "/"; </script>
+	</div>
+</div>
+
 <script>
 	var count = 5;
 	setInterval(function(){

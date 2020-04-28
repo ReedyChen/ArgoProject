@@ -25,7 +25,7 @@ if "test" not in sys.argv:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'dev.db',
+        'NAME': 'database.db',
     }
 }
 

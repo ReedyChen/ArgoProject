@@ -4,29 +4,27 @@
 {% block extra_head %}
 
 {% endblock %}
-
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <head>
     <meta charset="utf-8">
     <title>{{ form.title }}</title>
-    <style>
-        body {font-family:sans-serif; padding:1em 2em;}
-        p {width:50em;}
-        label {display:block; float:left; width:10em;}
-        .errorlist {color:#f00;}
-    </style>
 </head>
-<script>
-	
-</script>
-<body>
-    <h1>{{ form.title }}</h1>
-    {% if form.response %}
-    <p>{{ form.response }}</p>
-    {% endif %}
-   <p><a href="/">Click here</a> to return to homepage.</p>
-	<script> var link = "/"; </script>
+<br></br>
+<div class="card text-center">
+    <h2 class="card-title">{{ form.title }}</h2>
 
-</body>
+    <h5 class="card-body">
+        {% if form.response %}
+        <p class="card-text">{{ form.response }}</p>
+        {% endif %}
+        <p class="card-text"><a href="/">Click here</a> to return to homepage.</p>
+    <script> var link = "/"; </script>
+    </h5>
+</div>
+    
+
 {% block content %}
 
 {% endblock %}

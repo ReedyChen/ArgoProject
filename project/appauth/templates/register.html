@@ -16,17 +16,13 @@
     }
 </script>
 <br></br>
+{% if registered %}
+
 <div class="row">
   <aside class="col-sm-4">
   </aside>
 	<aside class="col-sm-4">
-    {% if registered %}
-    <div class="card">
-      <article class="card-body">
-        Thank you for registering! An email has sent to you to verify your account.
-        </article>
-    </div>
-    {% else %}
+   
         <div id="error"></div>
         <div class="card">
           <article class="card-body">
@@ -51,7 +47,14 @@
           </div> <!-- card.// -->
         </aside> <!-- col.// -->
         
-    {% endif %}
 </div>
+{% else %}
+<div class="card text-center">
+	<div class="card-body">
+	You have successdully registered! Please verify your account through email.
+
+	</div>
+</div>
+{% endif %}
 
 {% endblock %}
