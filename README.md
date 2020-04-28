@@ -7,7 +7,7 @@ Make sure you have already installed Python 3.7, then install the Django 2.1 by 
 ```
 pip install Django==2.1
 ```
-If you are using macOS Catalina or the os after, which has the Python pre-installed, use the following command instead:
+If you are using macOS Catalina or higher, which has the Python pre-installed, use the following command instead:
 ```
 pip3 install Django==2.1
 ```
@@ -17,7 +17,7 @@ Open the Project directory, entering:
 python manage.py migrate
 python manage.py runserver
 ```
-Again if you are using macOS Catalina or the os after, use the following command instead:
+Again if you are using macOS Catalina or higher, use the following command instead:
 ```
 python3 manage.py migrate
 python3 manage.py runserver
